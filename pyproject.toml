@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qyn-clawbot"
+description = "微信 ClawBot（iLink）独立收发节点 / standalone WeChat ClawBot messaging node"
+readme = "README.md"
+requires-python = ">=3.9"
+keywords = ["wechat", "微信", "clawbot", "ilink", "bot", "messaging", "qyn"]
+dynamic = ["version"]
+
+# 零运行时依赖：协议实现只用标准库。
+# 唯一可选的第三方库是 Pillow —— 只有二维码导出 PNG 时才需要，缺失时自动降级为终端二维码。
+dependencies = []
+
+[project.optional-dependencies]
+png = ["Pillow"]
+
+[project.scripts]
+clawbot = "clawbot.cli:main"
+
+# 版本号单一来源：clawbot/__init__.py 的 __version__，
+# 它本身又等于 clawbot/client.py 的 CHANNEL_VERSION（该常量同时进协议请求头）。
+[tool.setuptools.dynamic]
+version = {attr = "clawbot.__version__"}
+
+[tool.setuptools]
+packages = ["clawbot"]

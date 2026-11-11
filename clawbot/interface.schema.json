@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/phone/interface.schema.json",
+  "title": "PHONE 对外接口 v1",
+  "description": "clawbot CLI 在 --json 模式下输出的形状，以及收件箱记录（inbox.jsonl 每行）的形状。字段只增不改；破坏性变更抬 schema 版本号。",
+  "schema_version": 1,
+  "$defs": {
+    "error": {
+      "type": "object",
+      "required": ["schema", "ok", "code", "error"],
+      "properties": {
+        "schema": { "const": 1 },
+        "ok": { "const": false },
+        "code": {
+          "type": "string",
+          "enum": ["bad_usage", "not_logged_in", "no_peer", "file_not_found", "failed"]
+        },
+        "error": { "type": "string" }
+      }
+    },
+    "send": {
+      "type": "object",
+      "required": ["schema", "ok", "peer_id", "message_id", "stage", "attempts", "error"],
+      "properties": {
+        "schema": { "const": 1 },
+        "ok": { "type": "boolean" },
+        "peer_id": { "type": "string" },
+        "message_id": { "type": ["integer", "null"] },
+        "stage": { "type": "string", "enum": ["read", "upload", "send"] },
+        "attempts": { "type": "integer" },
+        "error": { "type": ["string", "null"] }
+      }
+    },
+    "status": {
+      "type": "object",
+      "required": ["schema", "ok", "state_dir", "logged_in", "credentials", "cursor", "peers", "inbox", "receiver"],
+      "properties": {
+        "schema": { "const": 1 },
+        "ok": { "const": true },
+        "state_dir": { "type": "string" },
+        "logged_in": { "type": "boolean" },
+        "credentials": { "type": "object" },
+        "cursor": { "type": "string" },
+        "peers": { "type": "array", "items": { "type": "string" } },
+        "receiver": {
+          "description": "接收方（长轮询进程）现在是否在跑，以及它的 pid",
+          "type": "object",
+          "required": ["running", "pid"],
+          "properties": {
+            "running": { "type": "boolean" },
+            "pid": { "type": ["integer", "null"] }
+          }
+        },
+        "inbox": {
+          "type": "object",
+          "required": ["path", "records", "first_n", "last_n", "bytes"],
+          "properties": {
+            "path": { "type": "string" },
+            "records": { "type": "integer" },
+            "first_n": { "type": "integer" },
+            "last_n": { "type": "integer" },
+            "bytes": { "type": "integer" }
+          }
+        }
+      }
+    },
+    "peers": {
+      "type": "object",
+      "required": ["schema", "ok", "peers"],
+      "properties": {
+        "schema": { "const": 1 },
+        "ok": { "const": true },
+        "peers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["peer_id", "has_context_token", "updated_at"],
+            "properties": {
+              "peer_id": { "type": "string" },
+              "has_context_token": { "type": "boolean" },
+              "updated_at": { "type": "number" }
+            }
+          }
+        }
+      }
+    },
+    "inbox_record": {
+      "type": "object",
+      "required": ["schema", "n", "message_id", "peer_id", "kind", "text", "received_at"],
+      "properties": {
+        "schema": { "const": 1 },
+        "n": { "type": "integer", "minimum": 1 },
+        "message_id": { "type": "integer" },
+        "peer_id": { "type": "string" },
+        "kind": {
+          "type": "string",
+          "enum": ["text", "image", "voice", "file", "video", "unknown"]
+        },
+        "text": { "type": "string" },
+        "seq": { "type": "integer" },
+        "create_time_ms": { "type": "integer" },
+        "received_at": { "type": "number" }
+      }
+    },
+    "inbox": {
+      "type": "object",
+      "required": ["schema", "ok", "messages", "next_cursor", "has_more", "truncated", "first_n", "last_n"],
+      "properties": {
+        "schema": { "const": 1 },
+        "ok": { "const": true },
+        "messages": { "type": "array", "items": { "$ref": "#/$defs/inbox_record" } },
+        "next_cursor": { "type": "string" },
+        "has_more": { "type": "boolean" },
+        "truncated": { "type": "boolean" },
+        "first_n": { "type": "integer" },
+        "last_n": { "type": "integer" }
+      }
+    },
+    "follow_line": {
+      "type": "object",
+      "required": ["schema", "ok", "message"],
+      "properties": {
+        "schema": { "const": 1 },
+        "ok": { "const": true },
+        "message": { "$ref": "#/$defs/inbox_record" }
+      }
+    }
+  }
+}
