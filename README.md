@@ -1,4 +1,4 @@
-# PHONE — 微信 ClawBot 通道（手机 ↔ 电脑的通信管道）
+# qyn-phone —— 手机通道（微信 ClawBot 收发）
 
 手机微信 ↔ 电脑 之间的**最小双向管道**，基于腾讯官方的微信 ClawBot（iLink）协议。
 
